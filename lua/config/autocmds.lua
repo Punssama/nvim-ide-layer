@@ -101,3 +101,34 @@ autocmd("FileType", {
     vim.opt_local.conceallevel = 0
   end,
 })
+
+-- Terminal padding colour: the margin around Neovim belongs to the terminal (Alacritty `window.padding`), which uses
+-- its own background colour, so the editor looked inset in a darker frame. While Neovim runs, ask the terminal
+-- (OSC 11) to use the colorscheme's Normal background; restore its default (OSC 111) on exit/suspend.
+-- Terminals that do not understand the sequence ignore it. Nothing in alacritty.toml is touched.
+local function term_bg(set)
+  if #vim.api.nvim_list_uis() == 0 then
+    return
+  end
+  local seq = "\027]111\007"
+  if set then
+    local bg = vim.api.nvim_get_hl(0, { name = "Normal", link = false }).bg
+    if not bg then
+      return
+    end
+    seq = string.format("\027]11;#%06x\007", bg)
+  end
+  pcall(vim.api.nvim_chan_send, vim.v.stderr, seq)
+end
+autocmd({ "UIEnter", "ColorScheme", "VimResume" }, {
+  group = augroup("term_bg_set"),
+  callback = function()
+    term_bg(true)
+  end,
+})
+autocmd({ "VimLeave", "VimSuspend" }, {
+  group = augroup("term_bg_reset"),
+  callback = function()
+    term_bg(false)
+  end,
+})

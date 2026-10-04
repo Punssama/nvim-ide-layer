@@ -75,6 +75,16 @@ function M.current_dir()
   local buf = vim.api.nvim_get_current_buf()
   local name = vim.api.nvim_buf_get_name(buf)
   if vim.bo[buf].buftype == "" and name ~= "" and vim.fn.filereadable(name) == 1 then
+    -- The folder you started Neovim in (or :cd'd to) wins whenever the file lives inside it, so
+    -- `cd code/java; nvim` keeps the explorer / terminal on java/ instead of a parent git or LSP root.
+    -- realpath on both sides: Windows may hand out 8.3 short names (ADMINI~1) for one and long names for the other
+    local cwd = vim.fs.normalize(vim.uv.cwd() or ".")
+    local rcwd = vim.fs.normalize(vim.uv.fs_realpath(cwd) or cwd)
+    local file = vim.fs.normalize(vim.uv.fs_realpath(name) or name)
+    local prefix = rcwd:sub(-1) == "/" and rcwd or rcwd .. "/"
+    if file:sub(1, #prefix):lower() == prefix:lower() then
+      return cwd
+    end
     local root = M.root(buf)
     if vim.fn.isdirectory(root) == 1 then
       return root

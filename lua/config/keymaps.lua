@@ -52,12 +52,27 @@ end, { desc = "Prev Diagnostic" })
 map("n", "<space>w", ":w<cr>", opts)
 
 -- file explorer: nvim-tree rooted at the current file's project
+--   closed                    -> open it and focus it
+--   open, cursor in editor    -> focus it (and reveal the current file)
+--   open, cursor in explorer  -> close it
 local function toggle_explorer()
   local api = require("nvim-tree.api")
-  if api.tree.is_visible() then
+  if not api.tree.is_visible() then
+    -- open{path=} is ignored by nvim-tree, change_root works but needs native (backslash) paths on Windows
+    local dir = (util.current_dir():gsub("/", vim.fn.has("win32") == 1 and "\\" or "/"))
+    api.tree.open()
+    if require("nvim-tree.core").get_cwd() ~= dir then
+      api.tree.change_root(dir)
+    end
+    if vim.bo.buftype == "" and vim.api.nvim_buf_get_name(0) ~= "" then
+      api.tree.find_file({ open = true, focus = true })
+    end
+  elseif vim.bo.filetype == "NvimTree" then
     api.tree.close()
+  elseif vim.bo.buftype == "" and vim.api.nvim_buf_get_name(0) ~= "" then
+    api.tree.find_file({ open = true, focus = true })
   else
-    api.tree.open({ path = util.current_dir(), find_file = true })
+    api.tree.focus()
   end
 end
 map("n", "<space>e", toggle_explorer, { desc = "Toggle File Explorer", noremap = true, silent = true })
@@ -118,7 +133,10 @@ map("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Prev Search R
 map("x", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
 map("o", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
 
--- commenting
+-- commenting: <leader>/ toggles comments on the current line (accepts a count) or the visual selection.
+-- Grep moved to <leader>sg. Uses Neovim's built-in `gc` operator, made language-aware by ts-comments.
+map("n", "<leader>/", "gcc", { remap = true, desc = "Toggle Comment" })
+map("x", "<leader>/", "gc", { remap = true, desc = "Toggle Comment" })
 map("n", "gco", "o<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Below" })
 map("n", "gcO", "O<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Above" })
 

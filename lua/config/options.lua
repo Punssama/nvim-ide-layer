@@ -16,6 +16,8 @@ o.fileencoding = "utf-8"
 o.number = true
 o.relativenumber = true
 o.cursorline = true
+o.cursorlineopt = "number" -- highlight only the line number, not the whole row (calmer, cheaper to redraw)
+o.whichwrap = "b,s,h,l,<,>,[,]" -- h/l and arrow keys wrap across line boundaries
 o.signcolumn = "yes"
 o.termguicolors = true
 o.showmode = false
@@ -34,13 +36,13 @@ o.fillchars = table.concat({
   "foldsep: ",
   "diff:╱",
   "eob: ",
-  "horiz:─",
-  "horizup:┴",
-  "horizdown:┬",
-  "vert:│",
-  "vertleft:┤",
-  "vertright:├",
-  "verthoriz:┼",
+  "horiz:━",
+  "horizup:┻",
+  "horizdown:┳",
+  "vert:┃",
+  "vertleft:┫",
+  "vertright:┣",
+  "verthoriz:╋",
 }, ",")
 
 -- Editing (from LazyvimConfig)
@@ -86,6 +88,24 @@ o.sessionoptions = "buffers,curdir,tabpages,winsize,help,globals,skiprtp,folds"
 vim.schedule(function()
   o.clipboard = "unnamedplus"
 end)
+
+-- Windows: Git for Windows' PATH entry (...\Git\cmd\git.exe) is a launcher that starts the real git.exe,
+-- so every git call (nvim-tree, gitsigns, lazy) pays for two process spawns (~75ms vs ~45ms here).
+-- Put the real binary just in front of the launcher, for this Neovim and its children only.
+if vim.fn.has("win32") == 1 then
+  local parts = vim.split(vim.env.PATH or "", ";", { plain = true })
+  for i, dir in ipairs(parts) do
+    local root = dir:match("^(.*)[\\/]cmd[\\/]?$")
+    if root and vim.uv.fs_stat(root .. "/cmd/git.exe") then
+      local real = root .. "/mingw64/bin"
+      if vim.uv.fs_stat(real .. "/git.exe") then
+        table.insert(parts, i, real)
+        vim.env.PATH = table.concat(parts, ";")
+      end
+      break
+    end
+  end
+end
 
 -- Windows: PowerShell 7 as the :! shell (the integrated terminal uses Nushell, see plugins/terminal.lua)
 if vim.fn.has("win32") == 1 and vim.fn.executable("pwsh") == 1 then

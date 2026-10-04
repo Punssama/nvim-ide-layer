@@ -5,13 +5,29 @@ return {
     event = { "InsertEnter", "CmdlineEnter" },
     dependencies = { "rafamadriz/friendly-snippets" },
     opts = {
-      -- <CR> accepts, <Tab>/<S-Tab> jump snippets, <C-n>/<C-p> select, <C-space> open, <C-e> close
-      keymap = { preset = "enter", ["<C-y>"] = { "select_and_accept" } },
+      -- <CR> accepts, <Tab>/<S-Tab> jump snippets, <C-j>/<C-k> select, <C-space> open, <C-e> close
+      keymap = {
+        preset = "enter",
+        ["<C-y>"] = { "select_and_accept" },
+        ["<C-j>"] = { "select_next", "fallback" },
+        ["<C-k>"] = { "select_prev", "fallback" },
+        ["<C-n>"] = false,
+        ["<C-p>"] = false,
+      },
       appearance = { nerd_font_variant = "mono" },
       completion = {
         accept = { auto_brackets = { enabled = true } },
-        menu = { draw = { treesitter = { "lsp" } } },
-        documentation = { auto_show = true, auto_show_delay_ms = 200 },
+        -- rounded frame kept; its cells get the editor background (see colorscheme.lua) so no darker
+        -- rectangle shows around it. Label on the left, kind icon + name on the right.
+        menu = {
+          border = "rounded",
+          scrollbar = false,
+          draw = {
+            treesitter = { "lsp" },
+            columns = { { "label", "label_description", gap = 1 }, { "kind_icon", "kind", gap = 1 } },
+          },
+        },
+        documentation = { auto_show = true, auto_show_delay_ms = 200, window = { border = "rounded", scrollbar = false } },
         ghost_text = { enabled = false },
       },
       sources = {
@@ -25,7 +41,13 @@ return {
       },
       cmdline = {
         enabled = true,
-        keymap = { preset = "cmdline" },
+        keymap = {
+          preset = "cmdline",
+          ["<C-j>"] = { "select_next", "fallback" },
+          ["<C-k>"] = { "select_prev", "fallback" },
+          ["<C-n>"] = false,
+          ["<C-p>"] = false,
+        },
         completion = { menu = { auto_show = true } },
       },
     },
