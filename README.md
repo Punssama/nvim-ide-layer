@@ -1,4 +1,19 @@
-# Neovim IDE layer
+# nvim-ide-layer
+
+A Windows-first Neovim "IDE layer" in the spirit of LazyVim / NvChad: 20 switchable themes with live preview
+(`<leader>uC`) and a UI that recolours itself to match, island tabs, framed side panels, Claude Code inside Neovim.
+
+## Install (Windows, PowerShell)
+
+```powershell
+irm https://raw.githubusercontent.com/Punssama/nvim-ide-layer/main/install.ps1 | iex
+```
+
+Your current `%LOCALAPPDATA%
+vim` is moved to `nvim.bak-<timestamp>`, the config is cloned, and missing tools are listed.
+Then run `nvim`; plugins install on first start. Manual: `git clone https://github.com/Punssama/nvim-ide-layer $env:LOCALAPPDATA
+vim`.
+
 
 Minimal, fast, Windows-first Neovim config. Catppuccin Mocha, JetBrainsMono Nerd Font, LazyVim-like UI,
 LunarVim's file explorer (nvim-tree) and terminal (toggleterm), Java + Python out of the box.
