@@ -18,13 +18,13 @@ return {
       completion = {
         accept = { auto_brackets = { enabled = true } },
         -- rounded frame kept; its cells get the editor background (see colorscheme.lua) so no darker
-        -- rectangle shows around it. Label on the left, kind icon + name on the right.
+        -- rectangle shows around it. Kind icon, then label (no kind text: less noise).
         menu = {
           border = "rounded",
           scrollbar = false,
           draw = {
             treesitter = { "lsp" },
-            columns = { { "label", "label_description", gap = 1 }, { "kind_icon", "kind", gap = 1 } },
+            columns = { { "kind_icon" }, { "label", "label_description", gap = 1 } },
           },
         },
         documentation = { auto_show = true, auto_show_delay_ms = 200, window = { border = "rounded", scrollbar = false } },

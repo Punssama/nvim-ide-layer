@@ -196,6 +196,9 @@ function M.apply_ui()
   for _, g in ipairs({ "LspReferenceText", "LspReferenceRead", "LspReferenceWrite", "SnacksWordsRef" }) do
     set(g, { bg = c.surface0 })
   end
+  -- hairline indent guides: barely visible, the current scope a step brighter
+  set("SnacksIndent", { fg = c.surface0 })
+  set("SnacksIndentScope", { fg = c.surface2 })
   -- terminal title
   set("WinBarActive", { fg = c.mauve, bg = c.mantle, bold = true })
   set("WinBarInactive", { fg = c.overlay0, bg = c.mantle })

@@ -23,23 +23,19 @@ return {
       input = { enabled = true },
       -- smooth, short scroll animation (Ctrl-d/u, Ctrl-f/b, zz ...) instead of jumping
       scroll = { enabled = true, animate = { duration = { step = 8, total = 120 }, easing = "outQuad" } },
-      notifier = { enabled = true, timeout = 3000 },
+      notifier = { enabled = true, timeout = 3000, style = "compact" },
       indent = {
         enabled = true,
         animate = { enabled = false },
-        scope = { enabled = true },
+        -- hairline guides; colours come from util/theme.lua (SnacksIndent / SnacksIndentScope)
+        indent = { char = "\u{258f}" },
+        scope = { enabled = true, char = "\u{258f}" },
       },
       dashboard = {
         enabled = true,
         preset = {
-          header = table.concat({
-            "███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗",
-            "████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║",
-            "██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║",
-            "██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║",
-            "██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║",
-            "╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝",
-          }, "\n"),
+          -- compact wordmark instead of a six-line block banner
+          header = "\u{e62b}  n e o v i m",
           -- stylua: ignore
           keys = {
             { icon = "\u{f002} ", key = "f", desc = "Find File",       action = ":FzfLua files" },
@@ -117,6 +113,7 @@ return {
           buffer_close_icon = "\u{f0156}",
           modified_icon = "\u{25cf}",
           show_buffer_close_icons = true,
+          hover = { enabled = true, delay = 150, reveal = { "close" } }, -- close button only while hovering a tab
           show_close_icon = false,
           tab_size = 18,
           max_name_length = 24,
@@ -221,15 +218,8 @@ return {
               end,
             },
           },
-          lualine_y = {
-            {
-              function()
-                return "\u{f024b} " .. vim.fs.basename(vim.uv.cwd() or "")
-              end,
-            },
-          },
+          lualine_y = {},
           lualine_z = {
-            { "progress", padding = { left = 1, right = 0 } },
             { "location", padding = { left = 1, right = 1 } },
           },
         },
