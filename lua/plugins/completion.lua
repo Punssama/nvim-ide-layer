@@ -27,7 +27,33 @@ return {
             columns = { { "kind_icon" }, { "label", "label_description", gap = 1 } },
           },
         },
-        documentation = { auto_show = true, auto_show_delay_ms = 200, window = { border = "rounded", scrollbar = false } },
+        documentation = {
+          auto_show = true,
+          auto_show_delay_ms = 200,
+          window = { border = "rounded", scrollbar = false },
+          -- pyright / lua_ls send the signature as a ```lang fenced block; rendered as markdown, the fence rows stay
+          -- behind as blank lines (concealed, not removed). Show that code as the highlighted detail part instead.
+          draw = function(opts)
+            local doc = opts.item.documentation
+            local value = type(doc) == "table" and doc.value or doc
+            if type(value) ~= "string" then
+              return opts.default_implementation()
+            end
+            local code, rest = value:match("^%s*```[%w_+-]*\r?\n(.-)\r?\n```(.*)$")
+            if not code then
+              return opts.default_implementation()
+            end
+            rest = rest:gsub("^%s*%-%-%-+", ""):gsub("^%s+", "")
+            local detail = { code }
+            if type(opts.item.detail) == "string" and opts.item.detail ~= "" then
+              table.insert(detail, 1, opts.item.detail)
+            end
+            opts.default_implementation({
+              detail = detail,
+              documentation = rest ~= "" and { kind = "markdown", value = rest } or false,
+            })
+          end,
+        },
         ghost_text = { enabled = false },
       },
       sources = {

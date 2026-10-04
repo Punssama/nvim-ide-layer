@@ -140,6 +140,27 @@ return {
     end,
     opts = function()
       vim.o.laststatus = vim.g.lualine_laststatus
+      -- fzf-lua runs in a terminal buffer: name the picker instead of showing TERMINAL / Terminal
+      local picker = {
+        filetypes = { "fzf" },
+        sections = {
+          lualine_a = {
+            {
+              function()
+                local ok, info = pcall(function()
+                  return require("fzf-lua").get_info()
+                end)
+                local cmd = ok and info and info.cmd or ""
+                if cmd == "" or cmd == "fzf_exec" then
+                  return "PICKER"
+                end
+                return (cmd:gsub("_", " ")):upper()
+              end,
+              icon = "\u{f002}",
+            },
+          },
+        },
+      }
       return {
         options = {
           -- explicit: "auto" scans every plugin's runtimepath for a matching theme
@@ -214,7 +235,7 @@ return {
             { "location", padding = { left = 1, right = 1 } },
           },
         },
-        extensions = { "nvim-tree", "trouble" },
+        extensions = { "nvim-tree", "trouble", "mason", "quickfix", picker },
       }
     end,
   },
@@ -241,6 +262,9 @@ return {
           },
           view = "mini",
         },
+        -- the level icon and border colour already say what it is: no generic "Notify" / "Warning" title
+        -- (a title passed to vim.notify, e.g. by a plugin, still shows)
+        { filter = { event = "notify" }, view = "notify", opts = { title = "" } },
       },
       -- no "Cmdline" / "Lua" titles on the popup: the icon already says what it is
       cmdline = {
@@ -267,6 +291,7 @@ return {
     event = "VeryLazy",
     opts = {
       preset = "helix",
+      icons = { colors = false }, -- one muted icon colour (WhichKeyIcon, see util/theme.lua), like the dashboard
       spec = {
         {
           mode = { "n", "x" },

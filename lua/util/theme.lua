@@ -197,6 +197,13 @@ function M.apply_ui()
   set("IdeMuted", { fg = c.overlay1, bg = c.base })
   set("IdeRecording", { fg = c.red, bg = c.base, bold = true })
   set("WinSeparator", { fg = c.blue, bg = c.base })
+  set("WhichKeyIcon", { fg = c.overlay1 })
+  -- notifications: icon, title and border in the level colour, upright titles (several themes italicise them)
+  for level, fg in pairs({ Info = c.blue, Warn = c.yellow, Error = c.red, Debug = c.overlay1, Trace = c.overlay0 }) do
+    set("SnacksNotifierIcon" .. level, { fg = fg })
+    set("SnacksNotifierTitle" .. level, { fg = fg, bold = true })
+    set("SnacksNotifierBorder" .. level, { fg = fg, bg = c.base })
+  end
   -- explorer panel: one shade darker than the editor
   set("NvimTreeNormal", { fg = c.text, bg = c.mantle })
   set("NvimTreeNormalNC", { fg = c.text, bg = c.mantle })
