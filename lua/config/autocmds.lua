@@ -132,3 +132,40 @@ autocmd({ "VimLeave", "VimSuspend" }, {
     term_bg(false)
   end,
 })
+
+-- Right-click context menu (VS Code style). Native popup menu, so it works in any terminal with mouse
+-- reporting. `mousemodel=popup_setpos` (options.lua) moves the cursor to the click first.
+do
+  vim.cmd("silent! aunmenu PopUp")
+  local items = {
+    { "n", [[Go\ to\ Definition]], "<Cmd>lua vim.lsp.buf.definition()<CR>" },
+    { "n", [[Find\ References]], "<Cmd>FzfLua lsp_references<CR>" },
+    { "n", [[Rename\ Symbol]], "<Cmd>lua vim.lsp.buf.rename()<CR>" },
+    { "n", [[Code\ Action]], "<Cmd>lua vim.lsp.buf.code_action()<CR>" },
+    { "n", [[Format\ Document]], "<Cmd>lua require('conform').format({ lsp_format = 'fallback' })<CR>" },
+    { "n", "-Sep1-", "" },
+    { "n", [[Toggle\ Comment]], "<Cmd>normal gcc<CR>" },
+    { "v", [[Toggle\ Comment]], "<Esc><Cmd>normal gvgc<CR>" },
+    { "n", "-Sep2-", "" },
+    { "v", "Cut", [["+d]] },
+    { "v", "Copy", [["+y]] },
+    { "n", "Paste", [["+p]] },
+    { "v", "Paste", [["+p]] },
+    { "n", [[Select\ All]], "ggVG" },
+  }
+  for _, it in ipairs(items) do
+    vim.cmd(("%snoremenu PopUp.%s %s"):format(it[1], it[2], it[3] ~= "" and it[3] or "<Nop>"))
+  end
+end
+
+-- macro recording indicator in the statusline refreshes the moment recording starts / stops
+autocmd({ "RecordingEnter", "RecordingLeave" }, {
+  group = augroup("recording_refresh"),
+  callback = function()
+    if package.loaded["lualine"] then
+      vim.schedule(function()
+        require("lualine").refresh()
+      end)
+    end
+  end,
+})

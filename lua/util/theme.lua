@@ -192,6 +192,10 @@ function M.apply_ui()
   set("NvimTreeFolderIcon", { fg = c.blue })
   set("NvimTreeIndentMarker", { fg = c.surface1 })
   set("NvimTreeSpecialFile", { fg = c.peach })
+  -- other uses of the symbol under the cursor (snacks.words): a soft bar, no underline
+  for _, g in ipairs({ "LspReferenceText", "LspReferenceRead", "LspReferenceWrite", "SnacksWordsRef" }) do
+    set(g, { bg = c.surface0 })
+  end
   -- terminal title
   set("WinBarActive", { fg = c.mauve, bg = c.mantle, bold = true })
   set("WinBarInactive", { fg = c.overlay0, bg = c.mantle })

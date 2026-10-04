@@ -78,6 +78,16 @@ o.updatetime = 200
 o.timeoutlen = 300
 o.foldlevel = 99
 o.foldlevelstart = 99
+-- treesitter folds; everything stays open (foldlevel 99) until you fold (zc / za / zM). foldtext "" keeps the
+-- folded line syntax-highlighted instead of the old "+-- 12 lines" banner
+o.foldmethod = "expr"
+o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+o.foldtext = ""
+-- terminal / taskbar title: "file ●  —  project"
+o.title = true
+o.titlestring = "%t%( %M%)  \u{2014}  %{fnamemodify(getcwd(), ':t')}"
+-- right click opens the context menu (defined in config/autocmds.lua) at the clicked position
+o.mousemodel = "popup_setpos"
 o.shortmess = o.shortmess .. "WIcC"
 o.grepprg = "rg --vimgrep"
 o.grepformat = "%f:%l:%c:%m"

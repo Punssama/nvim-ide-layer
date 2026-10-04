@@ -62,6 +62,12 @@ nvim-tree's file watchers skip churn-heavy folders (`.git`, `node_modules`, `.ve
 Windows-only "Observed 1001 consecutive file system events" error (`max_events = 0`); press `R` in the tree to refresh by hand.
 Completion menu: `<C-j>` / `<C-k>` select next / previous.
 
+UX extras: right click opens a context menu (definition, references, rename, code action, format, comment, copy/paste);
+`<leader>uz` zen mode, `<leader>uZ` zoom the current window, `<leader>un` dismiss notifications, `<leader>sN` notification history,
+`]r` / `[r` jump between references of the symbol under the cursor (they are softly highlighted), treesitter folds
+(`za`/`zc`/`zM`/`zR`, all open by default), search count and macro-recording indicator in the statusline,
+window title `file - project`.
+
 Known collisions with Vim built-ins (kept on purpose): `zz` (centre cursor), `dw` (delete word forward),
 `te`/`tr` (till `e`/`r`), `s` (substitute), `-` (up a line). `<space>t` waits `timeoutlen` because `<space>to` exists.
 

@@ -6,7 +6,18 @@ return {
     "folke/snacks.nvim",
     lazy = false,
     priority = 900,
+    keys = {
+      { "<leader>uz", function() Snacks.zen() end, desc = "Zen Mode" },
+      { "<leader>uZ", function() Snacks.zen.zoom() end, desc = "Zoom Window" },
+      { "<leader>un", function() Snacks.notifier.hide() end, desc = "Dismiss Notifications" },
+      { "<leader>sN", function() Snacks.notifier.show_history() end, desc = "Notification History" },
+      { "]r", function() Snacks.words.jump(vim.v.count1) end, desc = "Next Reference" },
+      { "[r", function() Snacks.words.jump(-vim.v.count1) end, desc = "Prev Reference" },
+    },
     opts = {
+      -- soft highlight of the other uses of the symbol under the cursor (LSP references)
+      words = { enabled = true, debounce = 200 },
+      zen = { enabled = true, toggles = { dim = false } },
       bigfile = { enabled = true },
       quickfile = { enabled = true },
       input = { enabled = true },
@@ -171,6 +182,18 @@ return {
             },
           },
           lualine_x = {
+            { "searchcount", maxcount = 999, timeout = 500 },
+            {
+              function()
+                return "\u{f044a} @" .. vim.fn.reg_recording()
+              end,
+              cond = function()
+                return vim.fn.reg_recording() ~= ""
+              end,
+              color = function()
+                return { fg = require("util.theme").hex(require("util.theme").palette().red) }
+              end,
+            },
             {
               function()
                 return require("noice").api.status.command.get()
