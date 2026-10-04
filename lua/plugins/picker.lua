@@ -38,7 +38,6 @@ return {
     },
     keys = {
       { "<leader>,", "<cmd>FzfLua buffers sort_mru=true sort_lastused=true<cr>", desc = "Switch Buffer" },
-      { "<leader>/", pick("live_grep"), desc = "Grep (Root Dir)" },
       { "<leader>:", "<cmd>FzfLua command_history<cr>", desc = "Command History" },
       { "<leader><space>", pick("files"), desc = "Find Files (Root Dir)" },
       -- find
@@ -77,7 +76,7 @@ return {
       { "<leader>sw", pick("grep_visual"), mode = "x", desc = "Selection (Root Dir)" },
       { "<leader>ss", "<cmd>FzfLua lsp_document_symbols<cr>", desc = "Goto Symbol" },
       { "<leader>sS", "<cmd>FzfLua lsp_live_workspace_symbols<cr>", desc = "Goto Symbol (Workspace)" },
-      { "<leader>uC", "<cmd>FzfLua colorschemes<cr>", desc = "Colorscheme with Preview" },
+      { "<leader>uC", function() require("util.theme").pick() end, desc = "Colorscheme with Preview" },
     },
   },
 }

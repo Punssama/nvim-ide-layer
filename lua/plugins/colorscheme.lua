@@ -30,11 +30,29 @@ return {
         treesitter = true,
         lsp_trouble = true,
         which_key = true,
+        treesitter_context = true,
+        rainbow_delimiters = true,
       },
     },
     config = function(_, opts)
       require("catppuccin").setup(opts)
-      vim.cmd.colorscheme("catppuccin")
+      -- UI colours (borders, explorer, terminal, tabs) are derived from whichever theme is active
+      local T = require("util.theme")
+      vim.api.nvim_create_autocmd("ColorScheme", {
+        group = vim.api.nvim_create_augroup("ide_theme_ui", { clear = true }),
+        callback = T.apply_ui,
+      })
+      T.apply_saved()
     end,
   },
+
+  -- extra themes: loaded on demand by util/theme.lua (picker: <leader>uC)
+  { "folke/tokyonight.nvim", lazy = true, opts = { styles = { sidebars = "dark", floats = "dark" } } },
+  { "rose-pine/neovim", name = "rose-pine", lazy = true },
+  { "rebelot/kanagawa.nvim", lazy = true },
+  { "EdenEast/nightfox.nvim", lazy = true },
+  { "ellisonleao/gruvbox.nvim", lazy = true },
+  { "sainnhe/everforest", lazy = true, init = function() vim.g.everforest_background = "medium" end },
+  { "olimorris/onedarkpro.nvim", lazy = true },
+  { "Mofiqul/dracula.nvim", lazy = true },
 }

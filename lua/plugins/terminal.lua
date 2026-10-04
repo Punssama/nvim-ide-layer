@@ -26,7 +26,9 @@ return {
     },
     -- a function so vim.fn.executable("nu") (~5ms on Windows) only runs when toggleterm loads
     opts = function()
+      -- same panel colour as the explorer (mantle) instead of toggleterm's computed "shade"
       return {
+        highlights = require("util.theme").toggleterm_highlights(),
         size = function(term)
           if term.direction == "horizontal" then
             return 15
@@ -38,8 +40,7 @@ return {
         open_mapping = [[<C-\>]],
         hide_numbers = true,
         shade_filetypes = {},
-        shade_terminals = true,
-        shading_factor = 2,
+        shade_terminals = false,
         start_in_insert = true,
         insert_mappings = true,
         terminal_mappings = true,
@@ -63,6 +64,8 @@ return {
     end,
     config = function(_, opts)
       require("toggleterm").setup(opts)
+      -- winbar title colours (WinBarActive/Inactive) are set by util.theme.apply_ui on every colorscheme change
+      require("util.theme").apply_ui()
       -- LunarVim terminal-mode navigation, only inside toggleterm buffers
       vim.api.nvim_create_autocmd("TermOpen", {
         pattern = "term://*toggleterm#*",

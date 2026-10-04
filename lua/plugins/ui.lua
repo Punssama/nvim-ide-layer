@@ -10,6 +10,8 @@ return {
       bigfile = { enabled = true },
       quickfile = { enabled = true },
       input = { enabled = true },
+      -- smooth, short scroll animation (Ctrl-d/u, Ctrl-f/b, zz ...) instead of jumping
+      scroll = { enabled = true, animate = { duration = { step = 8, total = 120 }, easing = "outQuad" } },
       notifier = { enabled = true, timeout = 3000 },
       indent = {
         enabled = true,
@@ -30,9 +32,10 @@ return {
           -- stylua: ignore
           keys = {
             { icon = "\u{f002} ", key = "f", desc = "Find File",       action = ":FzfLua files" },
+            { icon = "\u{f017} ", key = "r", desc = "Recent Files",    action = ":FzfLua oldfiles" },
+            { icon = "\u{f0c5} ", key = "g", desc = "Find Word",       action = ":FzfLua live_grep" },
             { icon = "\u{f15b} ", key = "n", desc = "New File",        action = ":ene | startinsert" },
-            { icon = "\u{f0c5} ", key = "g", desc = "Find Text",       action = ":FzfLua live_grep" },
-            { icon = "\u{f1da} ", key = "r", desc = "Recent Files",    action = ":FzfLua oldfiles" },
+            { icon = "\u{f11c} ", key = "m", desc = "Mappings",        action = ":FzfLua keymaps" },
             { icon = "\u{e615} ", key = "c", desc = "Config",          action = ":FzfLua files cwd=" .. vim.fn.stdpath("config") },
             { icon = "\u{e62d} ", key = "s", desc = "Restore Session", action = function() require("persistence").load() end },
             { icon = "\u{f0e8} ", key = "e", desc = "File Explorer",   action = ":NvimTreeOpen" },
@@ -82,7 +85,10 @@ return {
     },
     opts = function()
       return {
-        highlights = require("catppuccin.special.bufferline").get_theme(),
+        -- "island" tabs, colours derived from the active theme (re-evaluated on every ColorScheme event)
+        highlights = function(defaults)
+          return vim.tbl_deep_extend("force", defaults.highlights or {}, require("util.theme").bufferline())
+        end,
         options = {
           close_command = function(n)
             Snacks.bufdelete(n)
@@ -90,16 +96,21 @@ return {
           right_mouse_command = function(n)
             Snacks.bufdelete(n)
           end,
-          diagnostics = "nvim_lsp",
-          always_show_bufferline = false,
-          separator_style = "thin",
-          diagnostics_indicator = function(_, _, diag)
-            local ret = (diag.error and icons.diagnostics.Error .. diag.error .. " " or "")
-              .. (diag.warning and icons.diagnostics.Warn .. diag.warning or "")
-            return vim.trim(ret)
-          end,
+          -- island tabs: rounded caps (the cap colour comes from the separator_* highlights above), a close icon
+          -- on each tab, a dot for unsaved buffers; diagnostics live in the statusline instead
+          diagnostics = false,
+          always_show_bufferline = true,
+          themable = false, -- some themes (Dracula...) ship their own BufferLine* groups; ours must win
+          separator_style = { "\u{e0b6}", "\u{e0b4}" },
+          indicator = { style = "none" },
+          buffer_close_icon = "\u{f0156}",
+          modified_icon = "\u{25cf}",
+          show_buffer_close_icons = true,
+          show_close_icon = false,
+          tab_size = 18,
+          max_name_length = 24,
           offsets = {
-            { filetype = "NvimTree", text = "Explorer", highlight = "Directory", text_align = "left" },
+            { filetype = "NvimTree", text = "File Explorer", highlight = "NvimTreeRootFolder", text_align = "center", separator = false },
           },
         },
       }
@@ -124,37 +135,30 @@ return {
       return {
         options = {
           -- explicit: "auto" scans every plugin's runtimepath for a matching theme
-          theme = "catppuccin",
+          theme = "ide", -- lua/lualine/themes/ide.lua, built from the active colorscheme
           globalstatus = vim.o.laststatus == 3,
-          section_separators = "",
+          section_separators = { left = "\u{e0b4}", right = "\u{e0b6}" },
           component_separators = "",
           disabled_filetypes = { statusline = { "snacks_dashboard" } },
         },
+        -- NvChad "default" statusline: mode block | file + git | ... | diagnostics, LSP, cwd, cursor block
         sections = {
-          lualine_a = { "mode" },
-          lualine_b = { "branch" },
-          lualine_c = {
-            {
-              "diagnostics",
-              symbols = {
-                error = icons.diagnostics.Error,
-                warn = icons.diagnostics.Warn,
-                info = icons.diagnostics.Info,
-                hint = icons.diagnostics.Hint,
-              },
-            },
-            { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
-            { "filename", path = 1, symbols = { modified = "  ", readonly = "", unnamed = "" } },
+          lualine_a = {
+            { "mode", icon = "\u{e7c5}", padding = { left = 1, right = 1 } },
           },
-          lualine_x = {
+          lualine_b = {},
+          lualine_c = {
+            { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
             {
-              function()
-                return require("noice").api.status.command.get()
-              end,
-              cond = function()
-                return package.loaded["noice"] and require("noice").api.status.command.has()
+              "filename",
+              path = 0,
+              symbols = { modified = " \u{25cf}", readonly = " \u{f023}", unnamed = "" },
+              -- terminal buffers are named "5468:nu:#toggleterm#1": show a plain label instead
+              fmt = function(str)
+                return vim.bo.buftype == "terminal" and "Terminal" or str
               end,
             },
+            { "branch", icon = "\u{e725}" },
             {
               "diff",
               symbols = { added = icons.git.added, modified = icons.git.modified, removed = icons.git.removed },
@@ -166,11 +170,45 @@ return {
               end,
             },
           },
-          lualine_y = {
-            { "progress", separator = " ", padding = { left = 1, right = 0 } },
-            { "location", padding = { left = 0, right = 1 } },
+          lualine_x = {
+            {
+              function()
+                return require("noice").api.status.command.get()
+              end,
+              cond = function()
+                return package.loaded["noice"] and require("noice").api.status.command.has()
+              end,
+            },
+            {
+              "diagnostics",
+              symbols = {
+                error = icons.diagnostics.Error,
+                warn = icons.diagnostics.Warn,
+                info = icons.diagnostics.Info,
+                hint = icons.diagnostics.Hint,
+              },
+            },
+            {
+              function()
+                local names = {}
+                for _, c in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
+                  names[#names + 1] = c.name
+                end
+                return #names > 0 and ("\u{f013} " .. table.concat(names, ", ")) or ""
+              end,
+            },
           },
-          lualine_z = {},
+          lualine_y = {
+            {
+              function()
+                return "\u{f024b} " .. vim.fs.basename(vim.uv.cwd() or "")
+              end,
+            },
+          },
+          lualine_z = {
+            { "progress", padding = { left = 1, right = 0 } },
+            { "location", padding = { left = 1, right = 1 } },
+          },
         },
         extensions = { "nvim-tree", "trouble" },
       }
@@ -184,6 +222,8 @@ return {
     dependencies = { "MunifTanjim/nui.nvim" },
     opts = {
       lsp = {
+        -- jdtls reports "Validate documents" / "Publish Diagnostics" on every keystroke; as popups that is pure noise
+        progress = { enabled = false },
         override = {
           ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
           ["vim.lsp.util.stylize_markdown"] = true,
@@ -216,6 +256,7 @@ return {
         {
           mode = { "n", "x" },
           { "<leader><tab>", group = "tabs" },
+          { "<leader>a", group = "ai/claude" },
           { "<leader>b", group = "buffer" },
           { "<leader>c", group = "code" },
           { "<leader>d", group = "debug" },
