@@ -15,7 +15,7 @@ lua/config/keymaps.lua    your keymaps + LazyVim-style leader map (non-plugin ke
 lua/config/autocmds.lua
 lua/util/init.lua         icons, project root, static LSP capabilities, Mason ensure_installed
 lua/plugins/
-  colorscheme.lua         catppuccin mocha
+  colorscheme.lua         catppuccin + 8 lazy theme plugins; theme manager is lua/util/theme.lua (picker <leader>uC, choice saved in nvim-data/ide-theme.txt, UI colours derived from the active theme)
   ui.lua                  snacks (dashboard/indent/notifier), bufferline, lualine, noice, which-key, persistence
   explorer.lua            nvim-tree  (LunarVim config)
   terminal.lua            toggleterm (LunarVim config, Nushell)
@@ -26,6 +26,7 @@ lua/plugins/
   completion.lua          blink.cmp
   formatting.lua          conform (format on save, toggle <leader>uf)
   dap.lua / java.lua      nvim-dap(+ui), debugpy, nvim-jdtls (debug + tests)
+  ai.lua                  claudecode.nvim: Claude Code in a side terminal (<leader>a*), IDE protocol like VS Code
 ```
 
 ## Your keymaps (kept 1:1)
@@ -34,6 +35,17 @@ lua/plugins/
 `sd`/`sn` split, `sh sj sk sl` / `ww` window nav, `<C-w><arrows>` resize, `<C-j>`/`<C-k>` diagnostics,
 `<space>w` save, `<space>e` / `<space>fe` explorer, `<space>t` terminal, `<space>to` external Alacritty,
 `<S-h>`/`<S-l>` buffers, `<C-\>` toggleterm.
+
+`<leader>/` toggles comments (line, count, or visual selection); grep is `<leader>sg`. Claude Code: `<leader>ac` toggle, `af` focus, `as` send selection / add file in tree, `ab` add buffer, `aa`/`ad` accept/deny diff.
+
+Explorer and terminal root: the folder you started Neovim in (or `:cd`) wins whenever the file is inside it; only files outside it fall back to the LSP/git root.
+
+`<leader>e` is a 3-state toggle: closed -> open + focus; open but cursor in the editor -> focus the explorer
+(revealing the current file); cursor already in the explorer -> close. `<leader>ug` turns the explorer's git marks
+on/off (off by default: with it on, nvim-tree spawns `git rev-parse` per folder, ~70ms each on Windows).
+nvim-tree's file watchers skip churn-heavy folders (`.git`, `node_modules`, `.venv`, `build`, nvim-data, ...) and never raise the
+Windows-only "Observed 1001 consecutive file system events" error (`max_events = 0`); press `R` in the tree to refresh by hand.
+Completion menu: `<C-j>` / `<C-k>` select next / previous.
 
 Known collisions with Vim built-ins (kept on purpose): `zz` (centre cursor), `dw` (delete word forward),
 `te`/`tr` (till `e`/`r`), `s` (substitute), `-` (up a line). `<space>t` waits `timeoutlen` because `<space>to` exists.
