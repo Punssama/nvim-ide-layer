@@ -60,9 +60,12 @@ Explorer and terminal root: the folder you started Neovim in (or `:cd`) wins whe
 on/off (off by default: with it on, nvim-tree spawns `git rev-parse` per folder, ~70ms each on Windows).
 nvim-tree's file watchers skip churn-heavy folders (`.git`, `node_modules`, `.venv`, `build`, nvim-data, ...) and never raise the
 Windows-only "Observed 1001 consecutive file system events" error (`max_events = 0`); press `R` in the tree to refresh by hand.
-Completion menu: `<C-j>` / `<C-k>` select next / previous.
+The tree is titled EXPLORER, shows the project name as its root, and hides `.git`, `__pycache__`, `node_modules` and `.cache`
+(`U` in the tree shows them).
+Completion menu: `<C-j>` / `<C-k>` select next / previous; snippets are left out right after `.` / `->`, where only members make sense.
 
-UX extras: right click opens a context menu (definition, references, rename, code action, format, comment, copy/paste);
+UX extras: `Esc` also closes hover / signature popups;
+right click opens a context menu (definition, references, rename, code action, format, comment, copy/paste);
 `<leader>uz` zen mode, `<leader>uZ` maximize / restore the current split (needs 2+ editor windows), `<leader>un` dismiss notifications, `<leader>sN` notification history,
 `]r` / `[r` jump between references of the symbol under the cursor (they are softly highlighted), treesitter folds
 (`za`/`zc`/`zM`/`zR`, all open by default), search count and macro-recording indicator in the statusline,

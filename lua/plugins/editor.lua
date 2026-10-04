@@ -179,6 +179,8 @@ return {
     ft = "lua",
     cmd = "LazyDev",
     opts = {
+      -- lua_ls root detection lives in plugins/lsp.lua (it asks lazydev first)
+      integrations = { lspconfig = false },
       library = {
         { path = "${3rd}/luv/library", words = { "vim%.uv" } },
         { path = "snacks.nvim", words = { "Snacks" } },

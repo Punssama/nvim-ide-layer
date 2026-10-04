@@ -57,7 +57,7 @@ return {
           enabled = true,
           name_formatter = function(term)
             local dir = term.dir or vim.fn.getcwd()
-            return " \u{f489} Terminal (" .. vim.fn.fnamemodify(dir, ":~") .. ") "
+            return " \u{f489}  Terminal \u{00b7} " .. vim.fn.fnamemodify(dir, ":t") .. " "
           end,
         },
       }

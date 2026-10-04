@@ -30,6 +30,9 @@ return {
         row = 0.5,
         col = 0.5,
         preview = { scrollchars = { "┃", "" } },
+        -- no dimmed backdrop: the picker is an outline card on the normal editor background (same as popups)
+        backdrop = 100,
+        title_flags = false,
       },
       files = { cwd_prompt = false },
       grep = { rg_opts = "--column --line-number --no-heading --color=always --smart-case --max-columns=4096 -e" },

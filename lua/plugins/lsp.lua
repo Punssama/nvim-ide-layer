@@ -48,6 +48,25 @@ return {
       vim.lsp.config("*", { capabilities = require("util").lsp_capabilities() })
 
       vim.lsp.config("lua_ls", {
+        -- Root: an existing lazydev workspace that already covers the file (plugin sources reuse the config's
+        -- client), else the nearest project marker. The stock config looks for .luarc.json in *every* parent
+        -- first, so a ~/.luarc.json made the home folder the workspace, which lua_ls refuses to load (warning
+        -- popup, no project features). A root equal to the home folder falls back to single-file mode.
+        -- (lazydev's own root_dir override is turned off in editor.lua; it returned no root for new projects.)
+        root_dir = function(bufnr, on_dir)
+          local lazydev = package.loaded["lazydev"]
+          local ws = lazydev and lazydev.find_workspace(bufnr) or nil
+          if ws then
+            return on_dir(ws)
+          end
+          local markers = { ".luarc.json", ".luarc.jsonc", ".luacheckrc", ".stylua.toml", "stylua.toml", "selene.toml", "selene.yml", ".git" }
+          local root = vim.fs.root(bufnr, { markers }) -- one nested list = equal priority, nearest folder wins
+          local home = vim.fs.normalize(vim.uv.os_homedir() or ""):lower()
+          if root and vim.fs.normalize(root):lower() == home then
+            root = nil
+          end
+          on_dir(root)
+        end,
         settings = {
           Lua = {
             workspace = {

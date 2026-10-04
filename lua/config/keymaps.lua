@@ -49,7 +49,7 @@ map("n", "<C-k>", function()
 end, { desc = "Prev Diagnostic" })
 
 -- save
-map("n", "<space>w", ":w<cr>", opts)
+map("n", "<space>w", ":w<cr>", vim.tbl_extend("force", opts, { desc = "Save File" }))
 
 -- file explorer: nvim-tree rooted at the current file's project
 --   closed                    -> open it and focus it
@@ -95,10 +95,25 @@ end, { desc = "Open External Terminal", noremap = true, silent = true })
 ---------------------------------------------------------------------------
 
 -- clear search highlight / save / quit
+-- Esc also closes hover / signature popups (like VS Code); scheduled because windows can't close inside an
+-- expression mapping
+local function close_doc_popups()
+  local docs = package.loaded["noice.lsp.docs"]
+  if docs then
+    for _, message in pairs(docs._messages or {}) do
+      pcall(docs.hide, message)
+    end
+  end
+  local win = vim.b.lsp_floating_preview
+  if win and vim.api.nvim_win_is_valid(win) then
+    pcall(vim.api.nvim_win_close, win, true)
+  end
+end
 map({ "i", "n", "s" }, "<esc>", function()
   vim.cmd("noh")
+  vim.schedule(close_doc_popups)
   return "<esc>"
-end, { expr = true, desc = "Escape and Clear hlsearch" })
+end, { expr = true, desc = "Escape, clear hlsearch, close hover" })
 map({ "i", "x", "n", "s" }, "<C-s>", "<cmd>w<cr><esc>", { desc = "Save File" })
 map("n", "<leader>qq", "<cmd>qa<cr>", { desc = "Quit All" })
 

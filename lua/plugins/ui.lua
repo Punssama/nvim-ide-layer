@@ -118,7 +118,7 @@ return {
           tab_size = 18,
           max_name_length = 24,
           offsets = {
-            { filetype = "NvimTree", text = "File Explorer", highlight = "NvimTreeRootFolder", text_align = "center", separator = false },
+            { filetype = "NvimTree", text = "EXPLORER", highlight = "IdeSidebarTitle", text_align = "center", separator = false },
           },
         },
       }
@@ -187,17 +187,7 @@ return {
               cond = function()
                 return vim.fn.reg_recording() ~= ""
               end,
-              color = function()
-                return { fg = require("util.theme").hex(require("util.theme").palette().red) }
-              end,
-            },
-            {
-              function()
-                return require("noice").api.status.command.get()
-              end,
-              cond = function()
-                return package.loaded["noice"] and require("noice").api.status.command.has()
-              end,
+              color = "IdeRecording",
             },
             {
               "diagnostics",
@@ -216,6 +206,7 @@ return {
                 end
                 return #names > 0 and ("\u{f013} " .. table.concat(names, ", ")) or ""
               end,
+              color = "IdeMuted",
             },
           },
           lualine_y = {},
@@ -251,10 +242,21 @@ return {
           view = "mini",
         },
       },
+      -- no "Cmdline" / "Lua" titles on the popup: the icon already says what it is
+      cmdline = {
+        format = {
+          cmdline = { title = "" },
+          lua = { title = "" },
+          help = { title = "" },
+          filter = { title = "" },
+          input = { title = "" },
+        },
+      },
       presets = {
         bottom_search = true,
         command_palette = true,
         long_message_to_split = true,
+        lsp_doc_border = true, -- hover / signature help get the same rounded frame as every other popup
       },
     },
   },

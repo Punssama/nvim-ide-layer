@@ -174,10 +174,28 @@ function M.apply_ui()
   local set = function(name, val)
     vim.api.nvim_set_hl(0, name, val)
   end
-  -- float borders drawn on the editor background so rounded corners leave no dark rectangle
+  -- Floats are "outline cards": same background as the editor, separated by the rounded border only. One
+  -- background for border and body means no dark rectangle around rounded corners and no light ring inside.
   for _, g in ipairs({ "FloatBorder", "BlinkCmpMenuBorder", "BlinkCmpDocBorder", "BlinkCmpSignatureHelpBorder" }) do
     set(g, { fg = c.blue, bg = c.base })
   end
+  for _, g in ipairs({ "NormalFloat", "Pmenu", "BlinkCmpMenu", "BlinkCmpDoc", "BlinkCmpSignatureHelp" }) do
+    set(g, { fg = c.text, bg = c.base })
+  end
+  set("FloatTitle", { fg = c.text, bg = c.base, bold = true })
+  set("PmenuSbar", { bg = c.base })
+  set("PmenuThumb", { bg = c.surface1 })
+  -- dashboard: one accent (keys + wordmark), muted icons, plain labels, quiet footer
+  set("SnacksDashboardHeader", { fg = c.blue, bold = true })
+  set("SnacksDashboardIcon", { fg = c.overlay1 })
+  set("SnacksDashboardDesc", { fg = c.text })
+  set("SnacksDashboardKey", { fg = c.blue, bold = true })
+  set("SnacksDashboardFooter", { fg = c.overlay0 })
+  set("SnacksDashboardSpecial", { fg = c.overlay1 })
+  -- quiet labels: sidebar title over the explorer, secondary statusline text, macro indicator
+  set("IdeSidebarTitle", { fg = c.overlay1, bg = c.mantle, bold = true })
+  set("IdeMuted", { fg = c.overlay1, bg = c.base })
+  set("IdeRecording", { fg = c.red, bg = c.base, bold = true })
   set("WinSeparator", { fg = c.blue, bg = c.base })
   -- explorer panel: one shade darker than the editor
   set("NvimTreeNormal", { fg = c.text, bg = c.mantle })
@@ -199,9 +217,6 @@ function M.apply_ui()
   -- hairline indent guides: barely visible, the current scope a step brighter
   set("SnacksIndent", { fg = c.surface0 })
   set("SnacksIndentScope", { fg = c.surface2 })
-  -- terminal title
-  set("WinBarActive", { fg = c.mauve, bg = c.mantle, bold = true })
-  set("WinBarInactive", { fg = c.overlay0, bg = c.mantle })
   -- terminal panel: toggleterm keeps its own highlight table, rebuild it for the new colours
   if package.loaded["toggleterm.config"] then
     pcall(function()
@@ -210,6 +225,14 @@ function M.apply_ui()
       cfg.reset_highlights()
     end)
   end
+  -- terminal title: toggleterm re-creates these (blue, underlined) in its own ColorScheme handler, which runs
+  -- after this one, so set them now and once more on the next tick
+  local function winbar()
+    set("WinBarActive", { fg = c.text, bg = c.mantle, bold = true })
+    set("WinBarInactive", { fg = c.overlay0, bg = c.mantle })
+  end
+  winbar()
+  vim.schedule(winbar)
 end
 
 --- Bufferline highlights ("island" tabs) from the palette.

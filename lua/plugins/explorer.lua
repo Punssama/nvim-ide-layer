@@ -82,7 +82,10 @@ return {
           group_empty = true,
           highlight_git = true,
           highlight_opened_files = "none",
-          root_folder_label = ":~",
+          -- project name instead of a long path
+          root_folder_label = function(path)
+            return vim.fn.fnamemodify(path, ":t")
+          end,
           indent_markers = {
             enable = true,
             icons = { corner = "\u{2514} ", edge = "\u{2502} ", none = "  " },
@@ -123,7 +126,7 @@ return {
         -- update_root = false: the tree keeps its project root instead of re-rooting (and re-running git)
         -- every time you switch to a buffer from another folder
         update_focused_file = { enable = true, update_root = false, ignore_list = {} },
-        filters = { dotfiles = false, custom = { "node_modules", "\\.cache" }, exclude = {} },
+        filters = { dotfiles = false, custom = { "node_modules", "\\.cache", "^\\.git$", "__pycache__" }, exclude = {} },
         -- git is OFF by default (toggle: <leader>ug). With it on, nvim-tree runs a synchronous `git rev-parse`
         -- for every folder it shows (60-80ms each on Windows), so opening the tree freezes Neovim for
         -- hundreds of ms. gitsigns still shows git state inside buffers.

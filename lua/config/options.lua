@@ -119,12 +119,25 @@ if vim.fn.has("win32") == 1 then
 end
 
 -- Windows: PowerShell 7 as the :! shell (the integrated terminal uses Nushell, see plugins/terminal.lua)
-if vim.fn.has("win32") == 1 and vim.fn.executable("pwsh") == 1 then
-  o.shell = "pwsh"
-  o.shellcmdflag =
-    "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new();$PSDefaultParameterValues['Out-File:Encoding']='utf8';"
-  o.shellredir = '2>&1 | %%{ "$_" } | Out-File %s; exit $LastExitCode'
-  o.shellpipe = '2>&1 | %%{ "$_" } | Tee-Object %s; exit $LastExitCode'
-  o.shellquote = ""
-  o.shellxquote = ""
+if vim.fn.has("win32") == 1 then
+  local function use_pwsh()
+    o.shell = "pwsh"
+    o.shellcmdflag =
+      "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new();$PSDefaultParameterValues['Out-File:Encoding']='utf8';"
+    o.shellredir = '2>&1 | %%{ "$_" } | Out-File %s; exit $LastExitCode'
+    o.shellpipe = '2>&1 | %%{ "$_" } | Tee-Object %s; exit $LastExitCode'
+    o.shellquote = ""
+    o.shellxquote = ""
+  end
+  -- one stat of the standard install path (~0.05ms) instead of vim.fn.executable()'s PATH scan (~3ms here);
+  -- other install locations are still found, just after the first frame
+  if vim.uv.fs_stat((vim.env.ProgramFiles or "C:\\Program Files") .. "\\PowerShell\\7\\pwsh.exe") then
+    use_pwsh()
+  else
+    vim.schedule(function()
+      if vim.fn.executable("pwsh") == 1 then
+        use_pwsh()
+      end
+    end)
+  end
 end

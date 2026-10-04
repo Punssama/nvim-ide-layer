@@ -37,6 +37,12 @@ return {
         },
         providers = {
           lazydev = { name = "LazyDev", module = "lazydev.integrations.blink", score_offset = 100 },
+          -- after a trigger character (obj. / ->) only members make sense; snippets there are noise
+          snippets = {
+            should_show_items = function(ctx)
+              return ctx.trigger.initial_kind ~= "trigger_character"
+            end,
+          },
         },
       },
       cmdline = {
