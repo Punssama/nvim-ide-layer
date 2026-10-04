@@ -33,7 +33,7 @@ return {
         underline = true,
         update_in_insert = false,
         severity_sort = true,
-        virtual_text = { spacing = 4, source = "if_many", prefix = "●" },
+        virtual_text = false, -- tiny-inline-diagnostic.nvim (plugins/polish.lua) draws them
         float = { border = "rounded", source = true },
         signs = {
           text = {
@@ -50,7 +50,13 @@ return {
       vim.lsp.config("lua_ls", {
         settings = {
           Lua = {
-            workspace = { checkThirdParty = false },
+            workspace = {
+              checkThirdParty = false,
+              -- keep the "Loading workspace" scan small when a Lua file is opened from a big folder
+              maxPreload = 3000,
+              preloadFileSize = 150,
+              ignoreDir = { ".git", "node_modules", ".venv", "venv", "__pycache__", "nvim-data", "build", "target" },
+            },
             codeLens = { enable = true },
             completion = { callSnippet = "Replace" },
             doc = { privateName = { "^_" } },
