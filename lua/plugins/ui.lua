@@ -291,7 +291,6 @@ return {
     event = "VeryLazy",
     opts = {
       preset = "helix",
-      icons = { colors = false }, -- one muted icon colour (WhichKeyIcon, see util/theme.lua), like the dashboard
       spec = {
         {
           mode = { "n", "x" },
