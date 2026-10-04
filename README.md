@@ -63,7 +63,7 @@ Windows-only "Observed 1001 consecutive file system events" error (`max_events =
 Completion menu: `<C-j>` / `<C-k>` select next / previous.
 
 UX extras: right click opens a context menu (definition, references, rename, code action, format, comment, copy/paste);
-`<leader>uz` zen mode, `<leader>uZ` zoom the current window, `<leader>un` dismiss notifications, `<leader>sN` notification history,
+`<leader>uz` zen mode, `<leader>uZ` maximize / restore the current split (needs 2+ editor windows), `<leader>un` dismiss notifications, `<leader>sN` notification history,
 `]r` / `[r` jump between references of the symbol under the cursor (they are softly highlighted), treesitter folds
 (`za`/`zc`/`zM`/`zR`, all open by default), search count and macro-recording indicator in the statusline,
 window title `file - project`.

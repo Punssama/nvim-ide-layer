@@ -8,7 +8,7 @@ return {
     priority = 900,
     keys = {
       { "<leader>uz", function() Snacks.zen() end, desc = "Zen Mode" },
-      { "<leader>uZ", function() Snacks.zen.zoom() end, desc = "Zoom Window" },
+      { "<leader>uZ", function() require("util").toggle_maximize() end, desc = "Zoom (maximize) Split" },
       { "<leader>un", function() Snacks.notifier.hide() end, desc = "Dismiss Notifications" },
       { "<leader>sN", function() Snacks.notifier.show_history() end, desc = "Notification History" },
       { "]r", function() Snacks.words.jump(vim.v.count1) end, desc = "Next Reference" },

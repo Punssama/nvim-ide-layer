@@ -201,4 +201,30 @@ function M.mason_ensure(packages)
   end)
 end
 
+--- Maximize the current split to the whole editor area (toggle). Side panels (explorer, terminal) keep their
+--- fixed size; the other editor splits are squeezed to a single line and come back on the second press.
+function M.toggle_maximize()
+  if vim.t.ide_zoom_restore then
+    vim.cmd(vim.t.ide_zoom_restore)
+    vim.t.ide_zoom_restore = nil
+    vim.notify("Window restored", vim.log.levels.INFO, { title = "Zoom" })
+    return
+  end
+  local editors = 0
+  for _, w in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    local b = vim.api.nvim_win_get_buf(w)
+    if vim.api.nvim_win_get_config(w).relative == "" and vim.bo[b].buftype == "" then
+      editors = editors + 1
+    end
+  end
+  if editors < 2 then
+    vim.notify("Only one editor window - nothing to zoom (open a split first)", vim.log.levels.INFO, { title = "Zoom" })
+    return
+  end
+  vim.t.ide_zoom_restore = vim.fn.winrestcmd()
+  vim.cmd("wincmd |")
+  vim.cmd("wincmd _")
+  vim.notify("Window zoomed - press again to restore", vim.log.levels.INFO, { title = "Zoom" })
+end
+
 return M
