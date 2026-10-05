@@ -36,7 +36,21 @@ return {
       -- debug + test bundles (installed through Mason)
       local bundles =
         vim.fn.glob(mason .. "/share/java-debug-adapter/com.microsoft.java.debug.plugin-*.jar", false, true)
-      vim.list_extend(bundles, vim.fn.glob(mason .. "/share/java-test/*.jar", false, true))
+      -- Not every jar Mason links there is a loadable bundle: the test runner fat jar and the jacoco agent are not
+      -- OSGi bundles, com.microsoft.java.test.plugin.jar duplicates the versioned plugin-*.jar, and asm / jacoco
+      -- (coverage only) clash with jdtls's own copies. Loading them makes jdtls fail at startup with
+      -- "Cannot refresh bundle org.eclipse.jdt.ls.core" and run without the debug / test extensions.
+      local skip = {
+        ["com.microsoft.java.test.runner-jar-with-dependencies.jar"] = true,
+        ["jacocoagent.jar"] = true,
+        ["com.microsoft.java.test.plugin.jar"] = true,
+      }
+      for _, jar in ipairs(vim.fn.glob(mason .. "/share/java-test/*.jar", false, true)) do
+        local base = vim.fs.basename(jar)
+        if not skip[base] and not base:find("^org%.objectweb") and not base:find("^org%.jacoco") then
+          bundles[#bundles + 1] = jar
+        end
+      end
 
       local function attach()
         local file = vim.api.nvim_buf_get_name(0)
