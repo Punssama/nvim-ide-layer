@@ -14,10 +14,32 @@ local markers = {
   ".git",
 }
 
----Project root; a loose .java file falls back to its own directory so jdtls still works.
+---Project root. A loose .java file (no build file / .git above it) gets a root derived from its `package` line:
+---`package a.b.c;` in <dir>/a/b/c/X.java means <dir> is the source root. Without that, jdtls assumes the file's
+---own folder is the source root, reports 'declared package "a.b.c" does not match the expected package ""',
+---and resolves types (and `this.` completion) unreliably. No package line: the file's own folder.
 ---@param file string
 local function root_dir(file)
-  return vim.fs.root(file, markers) or vim.fs.dirname(file)
+  local root = vim.fs.root(file, markers)
+  if root then
+    return root
+  end
+  local dir = vim.fs.dirname(file)
+  local ok, lines = pcall(vim.fn.readfile, file, "", 60)
+  for _, line in ipairs(ok and lines or {}) do
+    local pkg = line:match("^%s*package%s+([%w_.]+)%s*;")
+    if pkg then
+      local up = dir
+      for part in vim.iter(vim.split(pkg, ".", { plain = true })):rev() do
+        if vim.fs.basename(up) ~= part then
+          return dir -- folders do not follow the package: keep the old behaviour
+        end
+        up = vim.fs.dirname(up)
+      end
+      return up
+    end
+  end
+  return dir
 end
 
 ---@param root string
@@ -73,7 +95,13 @@ return {
           root_dir = root,
           init_options = { bundles = bundles },
           capabilities = require("util").lsp_capabilities(),
-          settings = { java = { inlayHints = { parameterNames = { enabled = "all" } } } },
+          settings = {
+            java = {
+              inlayHints = { parameterNames = { enabled = "all" } },
+              -- loose files (no build file): the whole root folder is the source root (see root_dir)
+              project = { sourcePaths = { "." } },
+            },
+          },
         })
       end
 
