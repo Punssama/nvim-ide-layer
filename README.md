@@ -62,7 +62,7 @@ nvim-tree's file watchers skip churn-heavy folders (`.git`, `node_modules`, `.ve
 Windows-only "Observed 1001 consecutive file system events" error (`max_events = 0`); press `R` in the tree to refresh by hand.
 The tree is titled EXPLORER, shows the project name as its root, and hides `.git`, `__pycache__`, `node_modules` and `.cache`
 (`U` in the tree shows them).
-Completion menu: `<C-j>` / `<C-k>` select next / previous; snippets are left out right after `.` / `->`, where only members make sense.
+Completion menu: `<CR>` or `<Tab>` accept, `<C-j>` / `<C-k>` select next / previous; snippets are left out right after `.` / `->`, where only members make sense.
 
 UX extras: `Esc` also closes hover / signature popups;
 right click opens a context menu (definition, references, rename, code action, format, comment, copy/paste);

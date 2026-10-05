@@ -5,9 +5,11 @@ return {
     event = { "InsertEnter", "CmdlineEnter" },
     dependencies = { "rafamadriz/friendly-snippets" },
     opts = {
-      -- <CR> accepts, <Tab>/<S-Tab> jump snippets, <C-j>/<C-k> select, <C-space> open, <C-e> close
+      -- <CR> and <Tab> accept (Tab jumps to the next snippet field when no menu is open), <S-Tab> jumps back,
+      -- <C-j>/<C-k> select, <C-space> open, <C-e> close
       keymap = {
         preset = "enter",
+        ["<Tab>"] = { "select_and_accept", "snippet_forward", "fallback" },
         ["<C-y>"] = { "select_and_accept" },
         ["<C-j>"] = { "select_next", "fallback" },
         ["<C-k>"] = { "select_prev", "fallback" },
